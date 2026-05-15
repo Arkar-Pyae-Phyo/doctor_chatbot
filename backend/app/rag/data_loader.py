@@ -42,7 +42,7 @@ def _iter_records(data: Any) -> Iterable[Dict[str, Any]]:
                 yield item
         return
     if isinstance(data, dict):
-        for key, value in data.items():
+        for value in data.values():
             if isinstance(value, list):
                 for item in value:
                     if isinstance(item, dict):

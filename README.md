@@ -1,6 +1,6 @@
 # Doctor Assistant (Local RAG)
 
-A local doctor-assistant chatbot that answers questions using only the provided JSON files. It uses Milvus for vector storage, sentence-transformers for embeddings, and Ollama for local LLM inference.
+A local doctor-assistant chatbot that answers questions using only the provided JSON files. It uses Milvus for vector storage, sentence-transformers for embeddings, and a small local Transformers model for generation.
 
 ## Project Structure
 
@@ -60,19 +60,13 @@ python -m venv .venv
 pip install -r backend\requirements.txt
 ```
 
-3. Pull a local Ollama model:
-
-```bash
-ollama pull llama3
-```
-
-4. Ingest the JSON files:
+3. Ingest the JSON files:
 
 ```bash
 python -m backend.scripts.ingest
 ```
 
-5. Run the API and UI:
+4. Run the API and UI:
 
 ```bash
 uvicorn backend.app.main:app --reload --port 8000
@@ -99,3 +93,4 @@ curl -X POST http://localhost:8000/chat \
 - The chatbot only answers using the loaded JSON data.
 - If the data does not contain the answer, the chatbot responds with "I do not know" and a disclaimer.
 - Update `.env` from `.env.example` to adjust models, limits, or paths.
+- The first run downloads models from Hugging Face; set `LLM_DEVICE=cuda` to use a GPU if available.

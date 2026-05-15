@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from backend.app.config import get_settings
 from backend.app.rag.embedding import embed_texts
-from backend.app.rag.llm import OllamaClient
+from backend.app.rag.llm import TransformersClient
 from backend.app.rag.milvus_store import MilvusStore
 from backend.app.rag.prompt import SYSTEM_PROMPT, build_prompt
 from backend.app.rag.types import RetrievedChunk
@@ -13,14 +13,14 @@ class RAGPipeline:
     def __init__(self) -> None:
         self.settings = get_settings()
         self.milvus = MilvusStore()
-        self.milvus.connect()
-        self.llm = OllamaClient()
+        self.llm = TransformersClient()
         self._disclaimer = (
             "This response is for informational support only and is not a substitute for professional medical "
             "judgment, diagnosis, or treatment."
         )
 
     def retrieve(self, question: str, top_k: Optional[int] = None) -> List[RetrievedChunk]:
+        self.milvus.connect()
         embedding = embed_texts([question])[0]
         limit = top_k or self.settings.top_k
         return self.milvus.search(embedding, limit)

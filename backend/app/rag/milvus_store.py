@@ -1,6 +1,7 @@
 from typing import Iterable, List, Optional
 
 from pymilvus import Collection, CollectionSchema, DataType, FieldSchema, connections, utility
+from pymilvus.exceptions import MilvusException
 
 from backend.app.config import get_settings
 from backend.app.rag.types import DocumentChunk, RetrievedChunk
@@ -10,9 +11,25 @@ class MilvusStore:
     def __init__(self) -> None:
         self.settings = get_settings()
         self._collection: Optional[Collection] = None
+        self._connected = False
 
     def connect(self) -> None:
-        connections.connect(host=self.settings.milvus_host, port=str(self.settings.milvus_port))
+        if self._connected:
+            return
+        try:
+            connections.connect(
+                host=self.settings.milvus_host,
+                port=str(self.settings.milvus_port),
+                timeout=10,
+            )
+        except MilvusException:
+            raise
+        except Exception as exc:
+            raise MilvusException(
+                2,
+                f"Fail connecting to server on {self.settings.milvus_host}:{self.settings.milvus_port}",
+            ) from exc
+        self._connected = True
 
     def _create_collection(self, dim: int) -> Collection:
         fields = [

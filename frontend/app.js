@@ -24,6 +24,19 @@ chatForm.addEventListener("submit", async (event) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ question }),
     });
+    if (!response.ok) {
+      let message = "Unable to get a response from the API.";
+      try {
+        const error = await response.json();
+        if (error?.detail) {
+          message = error.detail;
+        }
+      } catch (parseError) {
+        message = "Unable to get a response from the API.";
+      }
+      appendMessage(message, "bot");
+      return;
+    }
     const data = await response.json();
     appendMessage(data.answer || "I do not know.", "bot");
   } catch (error) {
